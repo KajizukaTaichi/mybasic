@@ -52,7 +52,7 @@ impl Stmt {
 
     pub fn compile(&self, ctx: Compiler) -> String {
         match self {
-            Stmt::Let(name, value) => {}
+            Stmt::Let(name, expr) => format!("{}mov byte [{name}], eax", expr.compile()),
             _ => todo!(),
         }
     }
