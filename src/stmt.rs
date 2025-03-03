@@ -5,8 +5,9 @@ enum Stmt {
     Print(Expr),
     Let(String, Expr),
     If(Expr, Box<Stmt>, Option<Box<Stmt>>),
-    Goto(Expr),
-    Call(Expr),
+    Goto(String),
+    Call(String),
+    Sub(String),
     Return,
     End,
 }
@@ -17,7 +18,11 @@ impl Stmt {
         if let Some(code) = source.strip_prefix("print") {
             Some(Stmt::Print(Expr::parse(code)?))
         } else if let Some(code) = source.strip_prefix("goto") {
-            Some(Stmt::Goto(Expr::parse(code)?))
+            Some(Stmt::Goto(code.to_string()))
+        } else if let Some(code) = source.strip_prefix("sub") {
+            Some(Stmt::Sub(code.to_string()))
+        } else if let Some(code) = source.strip_prefix("call") {
+            Some(Stmt::Call(code.to_string()))
         } else if let Some(code) = source.strip_prefix("if") {
             let (cond, body) = code.split_once("then")?;
             if let Some((then, r#else)) = body.split_once("else") {
