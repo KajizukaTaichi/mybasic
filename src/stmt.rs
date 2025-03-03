@@ -57,9 +57,9 @@ impl Stmt {
                 ctx.variables.push(name.to_string());
                 let expr = expr.compile(ctx);
                 if expr.contains("\n") {
-                    format!("{expr}mov dword [{name}], eax\n")
+                    format!("{expr}mov [{name}], rax\n")
                 } else {
-                    format!("mov byte [{name}], {expr}\n")
+                    format!("mov [{name}], {expr}\n")
                 }
             }
             Stmt::Expr(expr) => expr.compile(ctx),
