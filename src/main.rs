@@ -20,6 +20,7 @@ fn main() {
 
 struct Compiler {
     variables: BTreeMap<String, Value>,
+    precode: String,
 }
 
 fn compile_main(source: &str) -> Option<String> {
