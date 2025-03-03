@@ -50,7 +50,7 @@ impl Compiler {
             {result}"#,
             ctx.variables
                 .iter()
-                .map(|x| format!("{x} dd 0"))
+                .map(|x| format!("{x} dq 0"))
                 .collect::<Vec<_>>()
                 .join("\n")
         ))
