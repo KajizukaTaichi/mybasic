@@ -6,17 +6,6 @@ pub enum Oper {
     Sub(Expr, Expr),
     Mul(Expr, Expr),
     Div(Expr, Expr),
-    Mod(Expr, Expr),
-    Pow(Expr, Expr),
-    Equal(Expr, Expr),
-    NotEq(Expr, Expr),
-    Less(Expr, Expr),
-    LessEq(Expr, Expr),
-    Greater(Expr, Expr),
-    GreaterEq(Expr, Expr),
-    And(Expr, Expr),
-    Or(Expr, Expr),
-    Not(Expr),
 }
 
 impl Oper {
@@ -27,43 +16,32 @@ impl Oper {
         let has_lhs = |len: usize| Expr::parse(&join!(token_list.get(..token_list.len() - len)?));
         Some(match operator.as_str() {
             "+" => Oper::Add(has_lhs(2)?, token),
+            "-" => Oper::Sub(has_lhs(2)?, token),
             "*" => Oper::Mul(has_lhs(2)?, token),
             "/" => Oper::Div(has_lhs(2)?, token),
-            "%" => Oper::Mod(has_lhs(2)?, token),
-            "^" => Oper::Pow(has_lhs(2)?, token),
-            "==" => Oper::Equal(has_lhs(2)?, token),
-            "!=" => Oper::NotEq(has_lhs(2)?, token),
-            "<" => Oper::Less(has_lhs(2)?, token),
-            ">" => Oper::Greater(has_lhs(2)?, token),
-            "<=" => Oper::LessEq(has_lhs(2)?, token),
-            ">=" => Oper::GreaterEq(has_lhs(2)?, token),
-            "&&" => Oper::And(has_lhs(2)?, token),
-            "||" => Oper::Or(has_lhs(2)?, token),
-            "-" => {
-                if let Some(lhs) = has_lhs(2) {
-                    Oper::Sub(lhs, token)
-                } else if token_list.len() == 2 {
-                    Oper::Sub(Expr::Value(Value::Num(0.0)), token)
-                } else {
-                    Oper::parse(&format!(
-                        "{} (0 - {})",
-                        &join!(token_list.get(..token_list.len() - 2)?),
-                        token_list.last()?
-                    ))?
-                }
-            }
-            "!" => {
-                if token_list.len() == 2 {
-                    Oper::Not(token)
-                } else {
-                    Oper::parse(&format!(
-                        "{} (!{})",
-                        join!(token_list.get(..token_list.len() - 2)?),
-                        token_list.last()?
-                    ))?
-                }
-            }
             _ => return None,
         })
+    }
+
+    pub fn compile(&self, ctx: &mut Compiler) -> String {
+        let codegen = |lhs: &Expr, rhs: &Expr, opecode: &str, ctx: &mut Compiler| {
+            let lhs = lhs.compile(ctx);
+            let rhs = rhs.compile(ctx);
+            if lhs.contains("\n") && rhs.contains("\n") {
+                format!("{lhs}mov ebx, eax\n{rhs}\n{opecode} ebx, eax\n")
+            } else if lhs.contains("\n") {
+                format!("{lhs}\n{opecode} eax, {rhs}\n")
+            } else if rhs.contains("\n") {
+                format!("{rhs}\n{opecode} {lhs}, eax\n")
+            } else {
+                format!("{opecode} {lhs}, {rhs}\n")
+            }
+        };
+        match self {
+            Oper::Add(lhs, rhs) => codegen(lhs, rhs, "add", ctx),
+            Oper::Sub(lhs, rhs) => codegen(lhs, rhs, "sub", ctx),
+            Oper::Mul(lhs, rhs) => codegen(lhs, rhs, "mul", ctx),
+            Oper::Div(lhs, rhs) => codegen(lhs, rhs, "div", ctx),
+        }
     }
 }
