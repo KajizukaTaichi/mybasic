@@ -30,8 +30,9 @@ impl Expr {
 
     pub fn compile(&self, ctx: &mut Compiler) -> String {
         match self {
-            Expr::Oper(oper) => oper.compile(),
-            _ => todo!(),
+            Expr::Oper(oper) => oper.compile(ctx),
+            Expr::Value(Value::Num(n)) => n.to_string(),
+            Expr::Refer(to) => format!("[{to}]"),
         }
     }
 }
