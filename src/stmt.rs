@@ -1,7 +1,7 @@
 use crate::*;
 
 #[derive(Debug, Clone)]
-enum Stmt {
+pub enum Stmt {
     Print(Expr),
     Let(String, Expr),
     If(Expr, Box<Stmt>, Option<Box<Stmt>>),
@@ -13,7 +13,7 @@ enum Stmt {
 }
 
 impl Stmt {
-    fn parse(source: &str) -> Option<Stmt> {
+    pub fn parse(source: &str) -> Option<Stmt> {
         let source = source.trim();
         if let Some(code) = source.strip_prefix("print") {
             Some(Stmt::Print(Expr::parse(code)?))
@@ -47,6 +47,13 @@ impl Stmt {
             Some(Stmt::Return)
         } else {
             return None;
+        }
+    }
+
+    pub fn compile(&self, ctx: Compiler) -> String {
+        match self {
+            Stmt::Let(name, value) => {}
+            _ => todo!(),
         }
     }
 }
