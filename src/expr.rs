@@ -21,13 +21,17 @@ impl Expr {
             } else if token.starts_with("(") && token.ends_with(")") {
                 let token = token.get(1..token.len() - 1)?.trim();
                 Expr::parse(token)?
-            } else if token.starts_with("\"") && token.ends_with("\"") {
-                let str = token.get(1..token.len() - 1)?.trim();
-                Expr::Value(Value::Str(str_escape(str)))
             // Variable reference
             } else {
                 Expr::Refer(token)
             })
+        }
+    }
+
+    pub fn compile(&self, ctx: &mut Compiler) -> String {
+        match self {
+            Expr::Oper(oper) => oper.compile(),
+            _ => todo!(),
         }
     }
 }
