@@ -50,9 +50,16 @@ impl Stmt {
         }
     }
 
-    pub fn compile(&self, ctx: Compiler) -> String {
+    pub fn compile(&self, ctx: &mut Compiler) -> String {
         match self {
-            Stmt::Let(name, expr) => format!("{}mov byte [{name}], eax", expr.compile()),
+            Stmt::Let(name, expr) => {
+                let expr = expr.compile(ctx);
+                if expr.contains("\n") {
+                    format!("{expr}mov byte [{name}], eax\n")
+                } else {
+                    format!("mov byte [{name}], {expr}\n")
+                }
+            }
             _ => todo!(),
         }
     }
