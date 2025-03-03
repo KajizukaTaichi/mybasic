@@ -8,13 +8,13 @@ $(SRC):
 	cargo run > $(SRC)
 
 $(OBJ): $(SRC)
-	nasm -f macho32 -o $(OBJ) $(SRC)
+	nasm $(SRC) -f macho64 -o $(OBJ)
 
 $(OUTPUT): $(OBJ)
 	clang $(OBJ) -o $(OUTPUT)
 
 clean:
-	rm -f $(OBJ) $(OUTPUT)
+	rm -f $(SRC) $(OBJ) $(OUTPUT)
 
 # Phony targets (these are not filenames)
 .PHONY: all clean
