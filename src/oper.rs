@@ -28,13 +28,13 @@ impl Oper {
             let lhs = lhs.compile(ctx);
             let rhs = rhs.compile(ctx);
             if lhs.contains("\n") && rhs.contains("\n") {
-                format!("{lhs}mov ebx, eax\n{rhs}\n{opecode} ebx, eax\n")
+                format!("{lhs}mov ebx, eax\n{rhs}{opecode} ebx, eax\n")
             } else if lhs.contains("\n") {
-                format!("{lhs}\n{opecode} eax, {rhs}\n")
+                format!("{lhs}{opecode} eax, {rhs}\n")
             } else if rhs.contains("\n") {
-                format!("{rhs}\n{opecode} {lhs}, eax\n")
+                format!("{rhs}{opecode} {lhs}, eax\n")
             } else {
-                format!("{opecode} {lhs}, {rhs}\n")
+                format!("mov eax, {lhs}\n{opecode} eax, {rhs}\n")
             }
         };
         match self {
