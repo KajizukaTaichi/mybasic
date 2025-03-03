@@ -57,7 +57,7 @@ impl Stmt {
                 ctx.variables.push(name.to_string());
                 let expr = expr.compile(ctx);
                 if expr.contains("\n") {
-                    format!("{expr}mov byte [{name}], eax\n")
+                    format!("{expr}mov dword [{name}], eax\n")
                 } else {
                     format!("mov byte [{name}], {expr}\n")
                 }
