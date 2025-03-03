@@ -8,6 +8,7 @@ pub enum Stmt {
     Goto(String),
     Call(String),
     Sub(String),
+    Expr(Expr),
     Return,
     End,
 }
@@ -46,13 +47,14 @@ impl Stmt {
         } else if source == "return" {
             Some(Stmt::Return)
         } else {
-            return None;
+            Some(Stmt::Expr(Expr::parse(source)?))
         }
     }
 
     pub fn compile(&self, ctx: &mut Compiler) -> String {
         match self {
             Stmt::Let(name, expr) => {
+                ctx.variables.push(name.to_string());
                 let expr = expr.compile(ctx);
                 if expr.contains("\n") {
                     format!("{expr}mov byte [{name}], eax\n")
@@ -60,6 +62,7 @@ impl Stmt {
                     format!("mov byte [{name}], {expr}\n")
                 }
             }
+            Stmt::Expr(expr) => expr.compile(ctx),
             _ => todo!(),
         }
     }
