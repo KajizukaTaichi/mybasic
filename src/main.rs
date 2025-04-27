@@ -3,12 +3,11 @@ mod lexer;
 mod oper;
 mod stmt;
 mod util;
-mod value;
 
 use indexmap::IndexMap;
 use ruka_vm::{RukaVM, asm};
 use util::{OPERATOR, SPACE, include_letter};
-use {expr::Expr, lexer::tokenize, oper::Oper, stmt::Stmt, value::Value};
+use {expr::Expr, lexer::tokenize, oper::Oper, stmt::Stmt};
 
 fn main() {
     let mut ctx = Compiler {
