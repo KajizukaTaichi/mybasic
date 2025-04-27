@@ -30,8 +30,13 @@ struct Compiler {
 impl Compiler {
     fn build(&mut self, source: &str) -> Option<String> {
         let mut result = String::new();
-        for code in source.lines() {
-            let (line, code) = code.split_once(" ")?;
+        let source = source.trim().to_lowercase();
+        for (line, code) in source.lines().enumerate() {
+            let line = line.to_string();
+            let (line, code) = code.trim().split_once(": ").unwrap_or((&line, code));
+            if code.is_empty() || code.trim().starts_with("rem") {
+                continue;
+            }
             let stmt = Stmt::parse(code)?.compile(self)?;
             result.push_str(&format!("line_{line}:\n{stmt}\n"));
         }
