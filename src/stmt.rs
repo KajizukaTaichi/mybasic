@@ -15,15 +15,15 @@ pub enum Stmt {
 impl Stmt {
     pub fn parse(source: &str) -> Option<Stmt> {
         let source = source.trim();
-        if let Some(line) = source.strip_prefix("GOTO") {
+        if let Some(line) = source.strip_prefix("goto") {
             Some(Stmt::Goto(line.trim().to_string()))
-        } else if let Some(func_name) = source.strip_prefix("SUB") {
-            Some(Stmt::Sub(func_name.trim().to_string()))
-        } else if let Some(func_name) = source.strip_prefix("CALL") {
-            Some(Stmt::Call(func_name.trim().to_string()))
-        } else if let Some(code) = source.strip_prefix("IF") {
-            let (cond, body) = code.split_once("THEN")?;
-            if let Some((then, r#else)) = body.split_once("ELSE") {
+        } else if let Some(name) = source.strip_prefix("sub") {
+            Some(Stmt::Sub(name.trim().to_string()))
+        } else if let Some(name) = source.strip_prefix("call") {
+            Some(Stmt::Call(name.trim().to_string()))
+        } else if let Some(code) = source.strip_prefix("if") {
+            let (cond, body) = code.split_once("then")?;
+            if let Some((then, r#else)) = body.split_once("else") {
                 Some(Stmt::If(
                     Expr::parse(cond)?,
                     Box::new(Stmt::parse(then)?),
@@ -36,12 +36,12 @@ impl Stmt {
                     None,
                 ))
             }
-        } else if let Some(code) = source.strip_prefix("LET") {
+        } else if let Some(code) = source.strip_prefix("let") {
             let (name, code) = code.split_once("=")?;
             Some(Stmt::Let(name.trim().to_string(), Expr::parse(code)?))
-        } else if source == "END" {
+        } else if source == "end" {
             Some(Stmt::End)
-        } else if source == "RETURN" {
+        } else if source == "return" {
             Some(Stmt::Return)
         } else {
             Some(Stmt::Expr(Expr::parse(source)?))
@@ -78,6 +78,9 @@ impl Stmt {
             }
             Stmt::Goto(line) => {
                 format!("\tjmp 1, line_{line}\n")
+            }
+            Stmt::Sub(name) => {
+                format!("subroutine_{name}:\n")
             }
             Stmt::Expr(expr) => expr.compile(ctx)?,
             _ => return None,
