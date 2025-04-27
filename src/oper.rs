@@ -3,9 +3,7 @@ use crate::*;
 #[derive(Debug, Clone)]
 pub enum Oper {
     Add(Expr, Expr),
-    Sub(Expr, Expr),
     Mul(Expr, Expr),
-    Div(Expr, Expr),
 }
 
 impl Oper {
@@ -16,9 +14,7 @@ impl Oper {
         let has_lhs = |len: usize| Expr::parse(&join!(token_list.get(..token_list.len() - len)?));
         Some(match operator.as_str() {
             "+" => Oper::Add(has_lhs(2)?, token),
-            "-" => Oper::Sub(has_lhs(2)?, token),
             "*" => Oper::Mul(has_lhs(2)?, token),
-            "/" => Oper::Div(has_lhs(2)?, token),
             _ => return None,
         })
     }
@@ -28,20 +24,18 @@ impl Oper {
             let lhs = lhs.compile(ctx);
             let rhs = rhs.compile(ctx);
             if lhs.contains("\n") && rhs.contains("\n") {
-                format!("{lhs}mov ebx, rax\n{rhs}{opecode} ebx, rax\n")
+                format!("{lhs}psh ar\n{rhs}mov dr, ar\npop ar\n{opecode} ar, dr\n")
             } else if lhs.contains("\n") {
-                format!("{lhs}{opecode} rax, {rhs}\n")
+                format!("{lhs}{opecode} ar, {rhs}\n")
             } else if rhs.contains("\n") {
-                format!("{rhs}{opecode} {lhs}, rax\n")
+                format!("{rhs}\nmov dr, ar\nmov ar, {lhs}\n{opecode} ar, dr\n")
             } else {
-                format!("mov rax, {lhs}\n{opecode} rax, {rhs}\n")
+                format!("mov ar, {lhs}\n{opecode} ar, {rhs}\n")
             }
         };
         match self {
             Oper::Add(lhs, rhs) => codegen(lhs, rhs, "add", ctx),
-            Oper::Sub(lhs, rhs) => codegen(lhs, rhs, "sub", ctx),
             Oper::Mul(lhs, rhs) => codegen(lhs, rhs, "mul", ctx),
-            Oper::Div(lhs, rhs) => codegen(lhs, rhs, "div", ctx),
         }
     }
 }
