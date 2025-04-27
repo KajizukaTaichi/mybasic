@@ -51,19 +51,20 @@ impl Stmt {
         }
     }
 
-    pub fn compile(&self, ctx: &mut Compiler) -> String {
-        match self {
+    pub fn compile(&self, ctx: &mut Compiler) -> Option<String> {
+        Some(match self {
             Stmt::Let(name, expr) => {
-                ctx.variables.push(name.to_string());
-                let expr = expr.compile(ctx);
+                let addr = ctx.variables.len();
+                ctx.variables.insert(name.to_string(), addr);
+                let expr = expr.compile(ctx)?;
                 if expr.contains("\n") {
-                    format!("{expr}mov [{name}], rax\n")
+                    format!("{expr}sta {addr}, ar\n")
                 } else {
-                    format!("mov [{name}], {expr}\n")
+                    format!("sta {addr}, {expr}\n")
                 }
             }
-            Stmt::Expr(expr) => expr.compile(ctx),
-            _ => todo!(),
-        }
+            Stmt::Expr(expr) => expr.compile(ctx)?,
+            _ => return None,
+        })
     }
 }
