@@ -15,12 +15,13 @@ fn main() {
         label_index: 0,
         variables: IndexMap::new(),
     };
-    let output = ctx.build(include_str!("../example.bas")).unwrap();
+    let code = include_str!("../example.bas").trim();
+    let output = ctx.build(code).unwrap();
     println!("{output}");
     let bytecodes = asm(&output).unwrap();
     let mut vm = RukaVM::new(bytecodes);
     vm.run();
-    dbg!(vm);
+    vm.dump();
 }
 
 struct Compiler {
@@ -33,6 +34,7 @@ impl Compiler {
         for code in source.lines() {
             let (line, code) = code.split_once(" ")?;
             let stmt = Stmt::parse(code)?.compile(self)?;
+            dbg!(code);
             result.push_str(&format!("line_{line}:\n{stmt}\n",));
         }
         Some(result)
