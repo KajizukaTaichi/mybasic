@@ -81,7 +81,7 @@ impl Stmt {
                 let then = then.compile(ctx)?;
                 let else_ = else_.compile(ctx)?;
                 let result = format!(
-                    "{expr}\tjmp cr, if_then_{label}\n\tjmp 1, if_else_{label}\nif_then_{label}:\n{then}\tjmp 1, if_end_{label}\nif_else_{label}:\n{else_}\nif_end_{label}:\n",
+                    "{expr}\tjmp cr, if_then_{label}\n\tjmp 1, if_else_{label}\nif_then_{label}:\n{then}\tjmp 1, if_end_{label}\nif_else_{label}:\n{else_}if_end_{label}:\n",
                     expr = if expr.contains("\n") {
                         format!("{expr}\tmov cr, ar\n")
                     } else {
