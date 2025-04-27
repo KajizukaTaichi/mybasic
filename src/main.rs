@@ -34,7 +34,6 @@ impl Compiler {
         for code in source.lines() {
             let (line, code) = code.split_once(" ")?;
             let stmt = Stmt::parse(code)?.compile(self)?;
-            dbg!(code);
             result.push_str(&format!("line_{line}:\n{stmt}\n",));
         }
         Some(result)
