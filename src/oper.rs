@@ -28,7 +28,7 @@ impl Oper {
             let lhs = lhs.compile(ctx)?;
             let rhs = rhs.compile(ctx)?;
             Some(if lhs.contains("\n") && rhs.contains("\n") {
-                format!("{lhs}psh ar\n{rhs}\tmov dr, ar\n\tpop ar\n\t{opecode} ar, dr\n")
+                format!("{lhs}\tpsh ar\n{rhs}\tmov dr, ar\n\tpop ar\n\t{opecode} ar, dr\n")
             } else if lhs.contains("\n") {
                 format!("{lhs}\t{opecode} ar, {rhs}\n")
             } else if rhs.contains("\n") {
