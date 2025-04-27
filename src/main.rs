@@ -12,6 +12,7 @@ use {expr::Expr, lexer::tokenize, oper::Oper, stmt::Stmt, value::Value};
 
 fn main() {
     let mut ctx = Compiler {
+        label_index: 0,
         variables: IndexMap::new(),
     };
     let code = "let x = 10 + 2 * 2\nlet y = 1 + x\nx + (y + x)";
@@ -24,6 +25,7 @@ fn main() {
 }
 
 struct Compiler {
+    label_index: usize,
     variables: IndexMap<String, usize>,
 }
 impl Compiler {
