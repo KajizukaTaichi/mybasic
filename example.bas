@@ -1,0 +1,4 @@
+10 LET X = 0
+20 LET X = X + 1
+30 IF X < 10 THEN GOTO 20
+40 X
