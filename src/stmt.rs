@@ -82,7 +82,7 @@ impl Stmt {
             Stmt::Sub(name) => {
                 format!("subroutine_{name}:\n")
             }
-            Stmt::Call(name) => format!("call subroutine_{name}:\n"),
+            Stmt::Call(name) => format!("cal subroutine_{name}\n"),
             Stmt::Return => "\tret\n".to_owned(),
             Stmt::End => "\thlt\n".to_owned(),
             Stmt::Expr(expr) => expr.compile(ctx)?,
