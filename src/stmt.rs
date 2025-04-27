@@ -56,7 +56,7 @@ impl Stmt {
                 ctx.variables.insert(name.to_string(), addr);
                 let expr = expr.compile(ctx)?;
                 if expr.contains("\n") {
-                    format!("\t{expr}sta {addr}, ar\n")
+                    format!("{expr}\tsta {addr}, ar\n")
                 } else {
                     format!("\tsta {addr}, {expr}\n")
                 }
@@ -77,7 +77,7 @@ impl Stmt {
                 result
             }
             Stmt::Goto(line) => {
-                format!("\tjmp 1, {line}\n")
+                format!("\tjmp 1, line_{line}\n")
             }
             Stmt::Expr(expr) => expr.compile(ctx)?,
             _ => return None,
