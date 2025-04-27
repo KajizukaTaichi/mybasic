@@ -19,6 +19,7 @@ impl Oper {
             "*" => Oper::Mul(has_lhs(2)?, token),
             "=" => Oper::Eql(has_lhs(2)?, token),
             "<" => Oper::Les(has_lhs(2)?, token),
+            ">" => Oper::Les(token, has_lhs(2)?),
             _ => return None,
         })
     }
@@ -32,9 +33,9 @@ impl Oper {
             } else if lhs.contains("\n") {
                 format!("{lhs}\t{opecode} ar, {rhs}\n")
             } else if rhs.contains("\n") {
-                format!("{rhs}\nmov dr, ar\nmov ar, {lhs}\n\t{opecode} ar, dr\n")
+                format!("{rhs}\tmov dr, ar\n\tmov ar, {lhs}\n\t{opecode} ar, dr\n")
             } else {
-                format!("\tmov ar, {lhs}\n{opecode} ar, {rhs}\n")
+                format!("\tmov ar, {lhs}\n\t{opecode} ar, {rhs}\n")
             })
         };
         Some(match self {
