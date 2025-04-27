@@ -2,7 +2,6 @@ use crate::*;
 
 #[derive(Debug, Clone)]
 pub enum Stmt {
-    Print(Expr),
     Let(String, Expr),
     If(Expr, Box<Stmt>, Option<Box<Stmt>>),
     Goto(String),
@@ -16,17 +15,15 @@ pub enum Stmt {
 impl Stmt {
     pub fn parse(source: &str) -> Option<Stmt> {
         let source = source.trim();
-        if let Some(code) = source.strip_prefix("print") {
-            Some(Stmt::Print(Expr::parse(code)?))
-        } else if let Some(code) = source.strip_prefix("goto") {
+        if let Some(code) = source.strip_prefix("GOTO") {
             Some(Stmt::Goto(code.to_string()))
-        } else if let Some(code) = source.strip_prefix("sub") {
+        } else if let Some(code) = source.strip_prefix("SUB") {
             Some(Stmt::Sub(code.to_string()))
-        } else if let Some(code) = source.strip_prefix("call") {
+        } else if let Some(code) = source.strip_prefix("CALL") {
             Some(Stmt::Call(code.to_string()))
-        } else if let Some(code) = source.strip_prefix("if") {
-            let (cond, body) = code.split_once("then")?;
-            if let Some((then, r#else)) = body.split_once("else") {
+        } else if let Some(code) = source.strip_prefix("IF") {
+            let (cond, body) = code.split_once("THEN")?;
+            if let Some((then, r#else)) = body.split_once("ELSE") {
                 Some(Stmt::If(
                     Expr::parse(cond)?,
                     Box::new(Stmt::parse(then)?),
@@ -39,12 +36,12 @@ impl Stmt {
                     None,
                 ))
             }
-        } else if let Some(code) = source.strip_prefix("let") {
+        } else if let Some(code) = source.strip_prefix("LET") {
             let (name, code) = code.split_once("=")?;
             Some(Stmt::Let(name.trim().to_string(), Expr::parse(code)?))
-        } else if source == "end" {
+        } else if source == "END" {
             Some(Stmt::End)
-        } else if source == "return" {
+        } else if source == "RETURN" {
             Some(Stmt::Return)
         } else {
             Some(Stmt::Expr(Expr::parse(source)?))
@@ -68,11 +65,11 @@ impl Stmt {
                 let expr = expr.compile(ctx)?;
                 let then = then.compile(ctx)?;
                 let result = format!(
-                    "\t{expr}\n\tjmp cr, if_then_{label}\n\tjmp 1, if_end_{label}\nif_then_{label}:\n{then}if_end_{label}:\n",
+                    "{expr}\tjmp cr, if_then_{label}\n\tjmp 1, if_end_{label}\nif_then_{label}:\n{then}if_end_{label}:\n",
                     expr = if expr.contains("\n") {
-                        format!("{expr}\tmov cr, ar")
+                        format!("{expr}\tmov cr, ar\n")
                     } else {
-                        format!("mov cr, {expr}")
+                        format!("\tmov cr, {expr}\n")
                     },
                     label = ctx.label_index
                 );
