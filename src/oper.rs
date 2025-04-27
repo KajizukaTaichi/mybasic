@@ -28,13 +28,13 @@ impl Oper {
             let lhs = lhs.compile(ctx)?;
             let rhs = rhs.compile(ctx)?;
             Some(if lhs.contains("\n") && rhs.contains("\n") {
-                format!("\t{lhs}psh ar\n\t{rhs}\tmov dr, ar\n\tpop ar\n\t{opecode} ar, dr\n")
+                format!("{lhs}psh ar\n{rhs}\tmov dr, ar\n\tpop ar\n\t{opecode} ar, dr\n")
             } else if lhs.contains("\n") {
-                format!("\t{lhs}\t{opecode} ar, {rhs}\n")
+                format!("{lhs}\t{opecode} ar, {rhs}\n")
             } else if rhs.contains("\n") {
-                format!("\t{rhs}\nmov dr, ar\n\tmov ar, {lhs}\n\t{opecode} ar, dr\n")
+                format!("{rhs}\nmov dr, ar\nmov ar, {lhs}\n\t{opecode} ar, dr\n")
             } else {
-                format!("\tmov ar, {lhs}\n\t{opecode} ar, {rhs}\n")
+                format!("\tmov ar, {lhs}\n{opecode} ar, {rhs}\n")
             })
         };
         Some(match self {
