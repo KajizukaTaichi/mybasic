@@ -76,6 +76,22 @@ impl Stmt {
                 ctx.label_index += 1;
                 result
             }
+            Stmt::If(expr, then, Some(else_)) => {
+                let expr = expr.compile(ctx)?;
+                let then = then.compile(ctx)?;
+                let else_ = else_.compile(ctx)?;
+                let result = format!(
+                    "{expr}\tjmp cr, if_then_{label}\n\tjmp 1, if_else_{label}\nif_then_{label}:\n{then}if_else_{label}:\n{else_}\n",
+                    expr = if expr.contains("\n") {
+                        format!("{expr}\tmov cr, ar\n")
+                    } else {
+                        format!("\tmov cr, {expr}\n")
+                    },
+                    label = ctx.label_index
+                );
+                ctx.label_index += 1;
+                result
+            }
             Stmt::Goto(line) => {
                 format!("\tjmp 1, line_{line}\n")
             }
@@ -86,7 +102,6 @@ impl Stmt {
             Stmt::Return => "\tret\n".to_owned(),
             Stmt::Exit => "\thlt\n".to_owned(),
             Stmt::Expr(expr) => expr.compile(ctx)?,
-            _ => return None,
         })
     }
 }
