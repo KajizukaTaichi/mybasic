@@ -66,7 +66,12 @@ impl Stmt {
             Stmt::If(expr, then, None) => {
                 let expr = expr.compile(ctx)?;
                 let then = then.compile(ctx)?;
-                format!("\t{expr}\n\tif expr\n\t{then}")
+                let result = format!(
+                    "\t{expr}\n\tjmp ar, then_{label}\nthen_{label}\n\t{then}",
+                    label = ctx.label_index
+                );
+                ctx.label_index += 1;
+                result
             }
             Stmt::Expr(expr) => expr.compile(ctx)?,
             _ => return None,
