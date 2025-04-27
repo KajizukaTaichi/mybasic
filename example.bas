@@ -1,6 +1,10 @@
-10 let cnt = 0
-20 let sum = 0
-30 let cnt = cnt + 1
-40 let sum = sum + cnt
-50 if cnt < 10 then goto 30
-60 end
+10 let number = 5
+20 call factorial
+30 end
+40 sub factorial
+50 let count = 0
+60 let result = 1
+70 let count = count + 1
+80 let result = result * count
+90 if count < number then goto 70
+100 return
