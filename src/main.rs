@@ -14,7 +14,7 @@ fn main() {
     let mut ctx = Compiler {
         variables: IndexMap::new(),
     };
-    let code = "let x = 1\nx + 2";
+    let code = "let x = 10 + 2 * 2\nlet y = 1 + x\nx + (y + x)";
     let output = ctx.build(code).unwrap();
     println!("{output}");
     let bytecodes = asm(&output).unwrap();
