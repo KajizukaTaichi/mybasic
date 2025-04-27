@@ -1,6 +1,6 @@
-10 LET IDX = 0
-20 LET SUM = 0
-30 LET IDX = IDX + 1
-40 LET SUM = SUM + IDX
-50 IF IDX < 10 THEN GOTO 30
-60 SUM
+10 let cnt = 0
+20 let sum = 0
+30 let cnt = cnt + 1
+40 let sum = sum + cnt
+50 if cnt < 10 then goto 30
+60 end
