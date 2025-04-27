@@ -19,11 +19,11 @@ impl Oper {
         })
     }
 
-    pub fn compile(&self, ctx: &mut Compiler) -> String {
+    pub fn compile(&self, ctx: &mut Compiler) -> Option<String> {
         let codegen = |lhs: &Expr, rhs: &Expr, opecode: &str, ctx: &mut Compiler| {
-            let lhs = lhs.compile(ctx);
-            let rhs = rhs.compile(ctx);
-            if lhs.contains("\n") && rhs.contains("\n") {
+            let lhs = lhs.compile(ctx)?;
+            let rhs = rhs.compile(ctx)?;
+            Some(if lhs.contains("\n") && rhs.contains("\n") {
                 format!("{lhs}psh ar\n{rhs}mov dr, ar\npop ar\n{opecode} ar, dr\n")
             } else if lhs.contains("\n") {
                 format!("{lhs}{opecode} ar, {rhs}\n")
@@ -31,11 +31,11 @@ impl Oper {
                 format!("{rhs}\nmov dr, ar\nmov ar, {lhs}\n{opecode} ar, dr\n")
             } else {
                 format!("mov ar, {lhs}\n{opecode} ar, {rhs}\n")
-            }
+            })
         };
-        match self {
-            Oper::Add(lhs, rhs) => codegen(lhs, rhs, "add", ctx),
-            Oper::Mul(lhs, rhs) => codegen(lhs, rhs, "mul", ctx),
-        }
+        Some(match self {
+            Oper::Add(lhs, rhs) => codegen(lhs, rhs, "add", ctx)?,
+            Oper::Mul(lhs, rhs) => codegen(lhs, rhs, "mul", ctx)?,
+        })
     }
 }
