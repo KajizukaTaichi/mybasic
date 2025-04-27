@@ -15,12 +15,12 @@ pub enum Stmt {
 impl Stmt {
     pub fn parse(source: &str) -> Option<Stmt> {
         let source = source.trim();
-        if let Some(code) = source.strip_prefix("GOTO") {
-            Some(Stmt::Goto(code.to_string()))
-        } else if let Some(code) = source.strip_prefix("SUB") {
-            Some(Stmt::Sub(code.to_string()))
-        } else if let Some(code) = source.strip_prefix("CALL") {
-            Some(Stmt::Call(code.to_string()))
+        if let Some(line) = source.strip_prefix("GOTO") {
+            Some(Stmt::Goto(line.trim().to_string()))
+        } else if let Some(func_name) = source.strip_prefix("SUB") {
+            Some(Stmt::Sub(func_name.trim().to_string()))
+        } else if let Some(func_name) = source.strip_prefix("CALL") {
+            Some(Stmt::Call(func_name.trim().to_string()))
         } else if let Some(code) = source.strip_prefix("IF") {
             let (cond, body) = code.split_once("THEN")?;
             if let Some((then, r#else)) = body.split_once("ELSE") {
