@@ -32,8 +32,12 @@ impl Compiler {
         let mut result = String::new();
         let source = source.trim().to_lowercase();
         for (line, code) in source.lines().enumerate() {
-            let line = line.to_string();
-            let (line, code) = code.trim().split_once(": ").unwrap_or((&line, code));
+            let (line, code) = code
+                .trim()
+                .split_once(" ")
+                .map(|(line, code)| Some((ok!(line.parse::<usize>())?, code)))
+                .flatten()
+                .unwrap_or((line, code));
             if code.is_empty() || code.trim().starts_with("rem") {
                 continue;
             }
