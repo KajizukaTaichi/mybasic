@@ -35,7 +35,7 @@ impl Stmt {
             } else {
                 Some(Stmt::If(
                     Expr::parse(cond)?,
-                    Box::new(Stmt::parse(code)?),
+                    Box::new(Stmt::parse(body)?),
                     None,
                 ))
             }
@@ -54,7 +54,8 @@ impl Stmt {
     pub fn compile(&self, ctx: &mut Compiler) -> Option<String> {
         Some(match self {
             Stmt::Let(name, expr) => {
-                let addr = ctx.variables.len();
+                let addr = ctx.variables.get(name).cloned();
+                let addr = addr.unwrap_or(ctx.variables.len());
                 ctx.variables.insert(name.to_string(), addr);
                 let expr = expr.compile(ctx)?;
                 if expr.contains("\n") {
@@ -67,7 +68,12 @@ impl Stmt {
                 let expr = expr.compile(ctx)?;
                 let then = then.compile(ctx)?;
                 let result = format!(
-                    "\t{expr}\n\tjmp ar, then_{label}\nthen_{label}\n\t{then}",
+                    "\t{expr}\n\tjmp cr, if_then_{label}\n\tjmp 1, if_end_{label}\nif_then_{label}\n{then}if_end_{label}\n",
+                    expr = if expr.contains("\n") {
+                        format!("{expr}\tmov cr, ar")
+                    } else {
+                        format!("mov cr, {expr}")
+                    },
                     label = ctx.label_index
                 );
                 ctx.label_index += 1;
