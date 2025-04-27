@@ -15,13 +15,12 @@ fn main() {
         label_index: 0,
         variables: IndexMap::new(),
     };
-    let code = "let a = 1\nif 0 then let a = 2\na * 10";
-    let output = ctx.build(code).unwrap();
+    let output = ctx.build(include_str!("../example.bas")).unwrap();
     println!("{output}");
     let bytecodes = asm(&output).unwrap();
     let mut vm = RukaVM::new(bytecodes);
     vm.run();
-    vm.dump();
+    dbg!(vm);
 }
 
 struct Compiler {
@@ -31,11 +30,10 @@ struct Compiler {
 impl Compiler {
     fn build(&mut self, source: &str) -> Option<String> {
         let mut result = String::new();
-        for (line, code) in source.lines().enumerate() {
-            result.push_str(&format!(
-                "line_{line}:\n{}\n",
-                Stmt::parse(code)?.compile(self)?
-            ));
+        for code in source.lines() {
+            let (line, code) = code.split_once(" ")?;
+            let stmt = Stmt::parse(code)?.compile(self)?;
+            result.push_str(&format!("line_{line}:\n{stmt}\n",));
         }
         Some(result)
     }
