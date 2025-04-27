@@ -1,10 +1,10 @@
-10 let number = 5
-20 call factorial
-30 end
-40 sub factorial
-50 let count = 0
-60 let result = 1
-70 let count = count + 1
-80 let result = result * count
-90 if count < number then goto 70
-100 return
+let number = 5
+call factorial
+end
+sub factorial
+    let count = 0
+    let result = 1
+    loop_start: let count = count + 1
+        let result = result * count
+        if count < number then goto loop_start
+    return
