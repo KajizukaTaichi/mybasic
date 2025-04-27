@@ -4,6 +4,8 @@ use crate::*;
 pub enum Oper {
     Add(Expr, Expr),
     Mul(Expr, Expr),
+    Eql(Expr, Expr),
+    Les(Expr, Expr),
 }
 
 impl Oper {
@@ -15,6 +17,8 @@ impl Oper {
         Some(match operator.as_str() {
             "+" => Oper::Add(has_lhs(2)?, token),
             "*" => Oper::Mul(has_lhs(2)?, token),
+            "=" => Oper::Eql(has_lhs(2)?, token),
+            "<" => Oper::Les(has_lhs(2)?, token),
             _ => return None,
         })
     }
@@ -36,6 +40,8 @@ impl Oper {
         Some(match self {
             Oper::Add(lhs, rhs) => codegen(lhs, rhs, "add", ctx)?,
             Oper::Mul(lhs, rhs) => codegen(lhs, rhs, "mul", ctx)?,
+            Oper::Eql(lhs, rhs) => codegen(lhs, rhs, "eql", ctx)?,
+            Oper::Les(lhs, rhs) => codegen(lhs, rhs, "les", ctx)?,
         })
     }
 }
