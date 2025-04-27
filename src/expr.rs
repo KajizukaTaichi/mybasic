@@ -32,7 +32,7 @@ impl Expr {
         Some(match self {
             Expr::Oper(oper) => oper.compile(ctx)?,
             Expr::Value(Value::Num(n)) => n.to_string(),
-            Expr::Refer(to) => format!("lda ar, {}\n", ctx.variables.get(to)?),
+            Expr::Refer(to) => format!("\tlda ar, {}\n", ctx.variables.get(to)?),
         })
     }
 }
