@@ -79,6 +79,9 @@ impl Stmt {
                 ctx.label_index += 1;
                 result
             }
+            Stmt::Goto(line) => {
+                format!("\tjmp 1, {line}\n")
+            }
             Stmt::Expr(expr) => expr.compile(ctx)?,
             _ => return None,
         })
