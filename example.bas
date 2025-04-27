@@ -1,9 +1,9 @@
-10 let number = 5
-20 call factorial
-30 exit
-40 sub factorial
-50 let count = 0
-60 let result = 1
-70 let count = count + 1
-80 let result = result * count
-90 if count < number then goto 70 else return
+10 LET NUMBER = 5
+20 CALL FACTORIAL
+30 EXIT
+40 SUB FACTORIAL
+50 LET COUNT = 0
+60 LET RESULT = 1
+70 LET COUNT = COUNT + 1
+80 LET RESULT = RESULT * COUNT
+90 IF COUNT < NUMBER THEN GOTO 70 ELSE RETURN
