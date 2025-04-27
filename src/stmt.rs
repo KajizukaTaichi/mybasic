@@ -68,7 +68,7 @@ impl Stmt {
                 let expr = expr.compile(ctx)?;
                 let then = then.compile(ctx)?;
                 let result = format!(
-                    "\t{expr}\n\tjmp cr, if_then_{label}\n\tjmp 1, if_end_{label}\nif_then_{label}\n{then}if_end_{label}\n",
+                    "\t{expr}\n\tjmp cr, if_then_{label}\n\tjmp 1, if_end_{label}\nif_then_{label}:\n{then}if_end_{label}:\n",
                     expr = if expr.contains("\n") {
                         format!("{expr}\tmov cr, ar")
                     } else {
