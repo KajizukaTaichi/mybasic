@@ -58,10 +58,15 @@ impl Stmt {
                 ctx.variables.insert(name.to_string(), addr);
                 let expr = expr.compile(ctx)?;
                 if expr.contains("\n") {
-                    format!("{expr}sta {addr}, ar\n")
+                    format!("\t{expr}sta {addr}, ar\n")
                 } else {
-                    format!("sta {addr}, {expr}\n")
+                    format!("\tsta {addr}, {expr}\n")
                 }
+            }
+            Stmt::If(expr, then, None) => {
+                let expr = expr.compile(ctx)?;
+                let then = then.compile(ctx)?;
+                format!("\t{expr}\n\tif expr\n\t{then}")
             }
             Stmt::Expr(expr) => expr.compile(ctx)?,
             _ => return None,
