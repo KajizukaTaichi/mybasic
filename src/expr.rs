@@ -28,11 +28,11 @@ impl Expr {
         }
     }
 
-    pub fn compile(&self, ctx: &mut Compiler) -> String {
-        match self {
-            Expr::Oper(oper) => oper.compile(ctx),
+    pub fn compile(&self, ctx: &mut Compiler) -> Option<String> {
+        Some(match self {
+            Expr::Oper(oper) => oper.compile(ctx)?,
             Expr::Value(Value::Num(n)) => n.to_string(),
-            Expr::Refer(to) => format!("[{to}]"),
-        }
+            Expr::Refer(to) => format!("lda ar, {}\n", ctx.variables.get(to)?),
+        })
     }
 }
