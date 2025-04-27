@@ -6,5 +6,4 @@
 60 let result = 1
 70 let count = count + 1
 80 let result = result * count
-90 if count < number then goto 70
-100 return
+90 if count < number then goto 70 else return
