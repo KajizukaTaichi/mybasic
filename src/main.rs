@@ -15,7 +15,7 @@ fn main() {
         label_index: 0,
         variables: IndexMap::new(),
     };
-    let code = "let a = 1\nif 1 then let a = 2\na * 10";
+    let code = "let a = 1\nif 0 then let a = 2\na * 10";
     let output = ctx.build(code).unwrap();
     println!("{output}");
     let bytecodes = asm(&output).unwrap();
