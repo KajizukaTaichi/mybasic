@@ -5,33 +5,34 @@ mod stmt;
 mod util;
 mod value;
 
-use expr::Expr;
-use lexer::tokenize;
-use oper::Oper;
+use indexmap::IndexMap;
 use ruka_vm::{RukaVM, asm};
-use stmt::Stmt;
 use util::{OPERATOR, SPACE, include_letter};
-use value::Value;
+use {expr::Expr, lexer::tokenize, oper::Oper, stmt::Stmt, value::Value};
 
 fn main() {
-    let mut ctx = Compiler {};
-    let output = &Expr::parse("1 + 2").unwrap().compile(&mut ctx);
-    dbg!(output);
-    let bytecodes = asm(output).unwrap();
+    let mut ctx = Compiler {
+        variables: IndexMap::new(),
+    };
+    let code = "let x = 1\nx + 2";
+    let output = ctx.build(code).unwrap();
+    println!("{output}");
+    let bytecodes = asm(&output).unwrap();
     let mut vm = RukaVM::new(bytecodes);
     vm.run();
     vm.dump();
 }
 
-struct Compiler {}
+struct Compiler {
+    variables: IndexMap<String, usize>,
+}
 impl Compiler {
-    fn build(source: &str) -> Option<String> {
+    fn build(&mut self, source: &str) -> Option<String> {
         let mut result = String::new();
-        let mut ctx = Compiler {};
         for (line, code) in source.lines().enumerate() {
             result.push_str(&format!(
-                "line_{line}:\n{}\n\n",
-                Stmt::parse(code)?.compile(&mut ctx)
+                "line_{line}:\n{}\n",
+                Stmt::parse(code)?.compile(self)?
             ));
         }
         Some(result)
