@@ -17,3 +17,10 @@ macro_rules! join {
         $x.join(&SPACE[0].to_string())
     };
 }
+
+#[macro_export]
+macro_rules! ok {
+    ($x:expr) => {
+        if let Ok(x) = $x { Some(x) } else { None }
+    };
+}
