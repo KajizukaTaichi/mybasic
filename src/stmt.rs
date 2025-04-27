@@ -9,7 +9,7 @@ pub enum Stmt {
     Sub(String),
     Expr(Expr),
     Return,
-    End,
+    Exit,
 }
 
 impl Stmt {
@@ -39,8 +39,8 @@ impl Stmt {
         } else if let Some(code) = source.strip_prefix("let") {
             let (name, code) = code.split_once("=")?;
             Some(Stmt::Let(name.trim().to_string(), Expr::parse(code)?))
-        } else if source == "end" {
-            Some(Stmt::End)
+        } else if source == "exit" {
+            Some(Stmt::Exit)
         } else if source == "return" {
             Some(Stmt::Return)
         } else {
@@ -84,7 +84,7 @@ impl Stmt {
             }
             Stmt::Call(name) => format!("cal subroutine_{name}\n"),
             Stmt::Return => "\tret\n".to_owned(),
-            Stmt::End => "\thlt\n".to_owned(),
+            Stmt::Exit => "\thlt\n".to_owned(),
             Stmt::Expr(expr) => expr.compile(ctx)?,
             _ => return None,
         })
