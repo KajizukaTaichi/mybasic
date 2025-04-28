@@ -15,13 +15,14 @@ fn main() {
         variables: IndexMap::new(),
     };
     let code = include_str!("../example.bas").trim();
-    compiler.run(code);
+    compiler.run(code).unwrap();
 }
 
 struct Compiler {
     label_index: usize,
     variables: IndexMap<String, usize>,
 }
+
 impl Compiler {
     fn run(&mut self, source: &str) -> Option<()> {
         let assembly = &self.build(source)?;
