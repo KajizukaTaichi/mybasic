@@ -4,10 +4,11 @@ use crate::*;
 pub enum Stmt {
     Let(String, Expr),
     If(Expr, Box<Stmt>, Option<Box<Stmt>>),
+    WhileStart(Expr),
+    WhileEnd,
     Goto(String),
     Call(String),
     Sub(String),
-    Expr(Expr),
     Return,
     Exit,
 }
@@ -41,10 +42,14 @@ impl Stmt {
             Some(Stmt::Let(name.trim().to_string(), Expr::parse(code)?))
         } else if source == "exit" {
             Some(Stmt::Exit)
+        } else if let Some(name) = source.strip_prefix("while") {
+            Some(Stmt::WhileStart(Expr::parse(name)?))
+        } else if source == "end while" {
+            Some(Stmt::WhileEnd)
         } else if source == "return" {
             Some(Stmt::Return)
         } else {
-            Some(Stmt::Expr(Expr::parse(source)?))
+            None
         }
     }
 
@@ -92,6 +97,26 @@ impl Stmt {
                 ctx.label_index += 1;
                 result
             }
+            Stmt::WhileStart(expr) => {
+                let expr = expr.compile(ctx)?;
+                let result = format!(
+                    "while_start_{label}:\n{expr}\tnor cr, cr\n\tjmp cr, while_end_{label}\n",
+                    expr = if expr.contains("\n") {
+                        format!("{expr}\tmov cr, ar\n")
+                    } else {
+                        format!("\tmov cr, {expr}\n")
+                    },
+                    label = ctx.label_index
+                );
+                ctx.label_index += 1;
+                result
+            }
+            Stmt::WhileEnd => {
+                format!(
+                    "\tjmp 1, while_start_{label}\nwhile_end_{label}:\n",
+                    label = ctx.label_index - 1
+                )
+            }
             Stmt::Goto(line) => {
                 format!("\tjmp 1, line_{line}\n")
             }
@@ -101,7 +126,6 @@ impl Stmt {
             Stmt::Call(name) => format!("cal subroutine_{name}\n"),
             Stmt::Return => "\tret\n".to_owned(),
             Stmt::Exit => "\thlt\n".to_owned(),
-            Stmt::Expr(expr) => expr.compile(ctx)?,
         })
     }
 }
