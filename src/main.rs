@@ -11,7 +11,8 @@ use {expr::Expr, lexer::tokenize, oper::Oper, stmt::Stmt};
 
 fn main() {
     let mut compiler = Compiler {
-        label_index: 0,
+        if_label_index: 0,
+        while_label_index: 0,
         variables: IndexMap::new(),
     };
     let code = include_str!("../example.bas").trim();
@@ -19,7 +20,8 @@ fn main() {
 }
 
 struct Compiler {
-    label_index: usize,
+    if_label_index: usize,
+    while_label_index: usize,
     variables: IndexMap<String, usize>,
 }
 
