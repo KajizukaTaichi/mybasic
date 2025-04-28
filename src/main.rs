@@ -24,7 +24,9 @@ struct Compiler {
 }
 impl Compiler {
     fn run(&mut self, source: &str) -> Option<()> {
-        let bytecodes = asm(&self.build(source)?).unwrap();
+        let assembly = &self.build(source)?;
+        println!("{}", &assembly);
+        let bytecodes = asm(assembly).unwrap();
         let mut vm = RukaVM::new(bytecodes);
         vm.run()?;
         vm.dump();
