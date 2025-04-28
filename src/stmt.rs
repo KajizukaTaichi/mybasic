@@ -79,7 +79,8 @@ impl Stmt {
                 )
             }
             Stmt::EndIf => {
-                format!("if_end_{}:\n", ctx.label_index - 1)
+                ctx.label_index -= 1;
+                format!("if_end_{}:\n", ctx.label_index)
             }
             Stmt::While(expr) => {
                 let expr = expr.compile(ctx)?;
