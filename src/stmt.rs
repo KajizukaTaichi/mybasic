@@ -3,7 +3,9 @@ use crate::*;
 #[derive(Debug, Clone)]
 pub enum Stmt {
     Let(String, Expr),
-    If(Expr, Box<Stmt>, Option<Box<Stmt>>),
+    If(Expr),
+    Else,
+    EndIf,
     While(Expr),
     EndWhile,
     ExitWhile,
@@ -24,20 +26,7 @@ impl Stmt {
         } else if let Some(name) = source.strip_prefix("call") {
             Some(Stmt::Call(name.trim().to_string()))
         } else if let Some(code) = source.strip_prefix("if") {
-            let (cond, body) = code.split_once("then")?;
-            if let Some((then, r#else)) = body.split_once("else") {
-                Some(Stmt::If(
-                    Expr::parse(cond)?,
-                    Box::new(Stmt::parse(then)?),
-                    Some(Box::new(Stmt::parse(r#else)?)),
-                ))
-            } else {
-                Some(Stmt::If(
-                    Expr::parse(cond)?,
-                    Box::new(Stmt::parse(body)?),
-                    None,
-                ))
-            }
+            Some(Stmt::If(Expr::parse(code)?))
         } else if let Some(code) = source.strip_prefix("let") {
             let (name, code) = code.split_once("=")?;
             Some(Stmt::Let(name.trim().to_string(), Expr::parse(code)?))
@@ -51,6 +40,10 @@ impl Stmt {
             Some(Stmt::EndWhile)
         } else if source == "end sub" {
             Some(Stmt::Return)
+        } else if source == "else" {
+            Some(Stmt::Else)
+        } else if source == "end if" {
+            Some(Stmt::EndIf)
         } else {
             None
         }
@@ -69,46 +62,27 @@ impl Stmt {
                     format!("\tsta {addr}, {expr}\n")
                 }
             }
-            Stmt::If(expr, then, None) => {
+            Stmt::If(expr) => {
                 let expr = expr.compile(ctx)?;
-                let then = then.compile(ctx)?;
                 let result = format!(
-                    "{expr}\tjmp cr, if_then_{label}\n\tjmp 1, if_end_{label}\nif_then_{label}:\n{then}if_end_{label}:\n",
-                    expr = if expr.contains("\n") {
-                        format!("{expr}\tmov cr, ar\n")
-                    } else {
-                        format!("\tmov cr, {expr}\n")
-                    },
+                    "{expr}\tjmp cr, if_then_{label}\n\tjmp 1, if_end_{label}\nif_then_{label}:\n",
+                    expr = cond!(expr),
                     label = ctx.label_index
                 );
                 ctx.label_index += 1;
                 result
             }
-            Stmt::If(expr, then, Some(else_)) => {
-                let expr = expr.compile(ctx)?;
-                let then = then.compile(ctx)?;
-                let else_ = else_.compile(ctx)?;
-                let result = format!(
-                    "{expr}\tjmp cr, if_then_{label}\n\tjmp 1, if_else_{label}\nif_then_{label}:\n{then}\tjmp 1, if_end_{label}\nif_else_{label}:\n{else_}if_end_{label}:\n",
-                    expr = if expr.contains("\n") {
-                        format!("{expr}\tmov cr, ar\n")
-                    } else {
-                        format!("\tmov cr, {expr}\n")
-                    },
-                    label = ctx.label_index
-                );
-                ctx.label_index += 1;
-                result
+            Stmt::Else => {
+                format!("if_else_{}:\n", ctx.label_index - 1)
+            }
+            Stmt::EndIf => {
+                format!("if_end_{}:\n", ctx.label_index - 1)
             }
             Stmt::While(expr) => {
                 let expr = expr.compile(ctx)?;
                 let result = format!(
                     "while_start_{label}:\n{expr}\tnor cr, cr\n\tjmp cr, while_end_{label}\n",
-                    expr = if expr.contains("\n") {
-                        format!("{expr}\tmov cr, ar\n")
-                    } else {
-                        format!("\tmov cr, {expr}\n")
-                    },
+                    expr = cond!(expr),
                     label = ctx.label_index
                 );
                 ctx.label_index += 1;
