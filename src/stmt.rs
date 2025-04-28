@@ -65,7 +65,7 @@ impl Stmt {
             Stmt::If(expr) => {
                 let expr = expr.compile(ctx)?;
                 let result = format!(
-                    "{expr}\tjmp cr, if_then_{label}\n\tjmp 1, if_end_{label}\nif_then_{label}:\n",
+                    "{expr}\tjmp cr, if_then_{label}\n\tjmp 1, if_else_{label}\njmp 1, if_end_{label}\nif_then_{label}:\n",
                     expr = cond!(expr),
                     label = ctx.label_index
                 );
@@ -73,7 +73,10 @@ impl Stmt {
                 result
             }
             Stmt::Else => {
-                format!("if_else_{}:\n", ctx.label_index - 1)
+                format!(
+                    "\tjmp 1, if_end_{label}\nif_else_{label}:\n",
+                    label = ctx.label_index - 1
+                )
             }
             Stmt::EndIf => {
                 format!("if_end_{}:\n", ctx.label_index - 1)
