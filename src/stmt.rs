@@ -4,13 +4,14 @@ use crate::*;
 pub enum Stmt {
     Let(String, Expr),
     If(Expr, Box<Stmt>, Option<Box<Stmt>>),
-    WhileStart(Expr),
-    WhileEnd,
+    While(Expr),
+    EndWhile,
+    ExitWhile,
     Goto(String),
     Call(String),
     Sub(String),
     Return,
-    Exit,
+    ExitProgram,
 }
 
 impl Stmt {
@@ -40,13 +41,15 @@ impl Stmt {
         } else if let Some(code) = source.strip_prefix("let") {
             let (name, code) = code.split_once("=")?;
             Some(Stmt::Let(name.trim().to_string(), Expr::parse(code)?))
-        } else if source == "exit" {
-            Some(Stmt::Exit)
+        } else if source == "exit program" {
+            Some(Stmt::ExitProgram)
+        } else if source == "exit while" {
+            Some(Stmt::ExitWhile)
         } else if let Some(name) = source.strip_prefix("while") {
-            Some(Stmt::WhileStart(Expr::parse(name)?))
+            Some(Stmt::While(Expr::parse(name)?))
         } else if source == "end while" {
-            Some(Stmt::WhileEnd)
-        } else if source == "return" {
+            Some(Stmt::EndWhile)
+        } else if source == "end sub" {
             Some(Stmt::Return)
         } else {
             None
@@ -97,7 +100,7 @@ impl Stmt {
                 ctx.label_index += 1;
                 result
             }
-            Stmt::WhileStart(expr) => {
+            Stmt::While(expr) => {
                 let expr = expr.compile(ctx)?;
                 let result = format!(
                     "while_start_{label}:\n{expr}\tnor cr, cr\n\tjmp cr, while_end_{label}\n",
@@ -111,11 +114,14 @@ impl Stmt {
                 ctx.label_index += 1;
                 result
             }
-            Stmt::WhileEnd => {
+            Stmt::EndWhile => {
                 format!(
                     "\tjmp 1, while_start_{label}\nwhile_end_{label}:\n",
                     label = ctx.label_index - 1
                 )
+            }
+            Stmt::ExitWhile => {
+                format!("\tjmp 1, while_end_{label}\n", label = ctx.label_index - 1)
             }
             Stmt::Goto(line) => {
                 format!("\tjmp 1, line_{line}\n")
@@ -125,7 +131,7 @@ impl Stmt {
             }
             Stmt::Call(name) => format!("cal subroutine_{name}\n"),
             Stmt::Return => "\tret\n".to_owned(),
-            Stmt::Exit => "\thlt\n".to_owned(),
+            Stmt::ExitProgram => "\thlt\n".to_owned(),
         })
     }
 }
