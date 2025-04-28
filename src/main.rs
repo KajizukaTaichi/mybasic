@@ -10,17 +10,12 @@ use util::{OPERATOR, SPACE, include_letter};
 use {expr::Expr, lexer::tokenize, oper::Oper, stmt::Stmt};
 
 fn main() {
-    let mut ctx = Compiler {
+    let mut compiler = Compiler {
         label_index: 0,
         variables: IndexMap::new(),
     };
     let code = include_str!("../example.bas").trim();
-    let output = ctx.build(code).unwrap();
-    println!("{output}");
-    let bytecodes = asm(&output).unwrap();
-    let mut vm = RukaVM::new(bytecodes);
-    vm.run();
-    vm.dump();
+    compiler.run(code).unwrap();
 }
 
 struct Compiler {
@@ -28,6 +23,14 @@ struct Compiler {
     variables: IndexMap<String, usize>,
 }
 impl Compiler {
+    fn run(&mut self, source: &str) -> Option<()> {
+        let bytecodes = asm(&self.build(source)?).unwrap();
+        let mut vm = RukaVM::new(bytecodes);
+        vm.run()?;
+        vm.dump();
+        Some(())
+    }
+
     fn build(&mut self, source: &str) -> Option<String> {
         let mut result = String::new();
         let source = source.trim().to_lowercase();
