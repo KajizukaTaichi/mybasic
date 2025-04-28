@@ -67,39 +67,42 @@ impl Stmt {
                 let result = format!(
                     "{expr}\tjmp cr, if_then_{label}\n\tjmp 1, if_else_{label}\n\tjmp 1, if_end_{label}\nif_then_{label}:\n",
                     expr = cond!(expr),
-                    label = ctx.label_index
+                    label = ctx.if_label_index
                 );
-                ctx.label_index += 1;
+                ctx.if_label_index += 1;
                 result
             }
             Stmt::Else => {
                 format!(
                     "\tjmp 1, if_end_{label}\nif_else_{label}:\n",
-                    label = ctx.label_index - 1
+                    label = ctx.if_label_index - 1
                 )
             }
             Stmt::EndIf => {
-                ctx.label_index -= 1;
-                format!("if_end_{}:\n", ctx.label_index)
+                ctx.if_label_index -= 1;
+                format!("if_end_{}:\n", ctx.if_label_index)
             }
             Stmt::While(expr) => {
                 let expr = expr.compile(ctx)?;
                 let result = format!(
                     "while_start_{label}:\n{expr}\tnor cr, cr\n\tjmp cr, while_end_{label}\n",
                     expr = cond!(expr),
-                    label = ctx.label_index
+                    label = ctx.while_label_index
                 );
-                ctx.label_index += 1;
+                ctx.while_label_index += 1;
                 result
             }
             Stmt::EndWhile => {
                 format!(
                     "\tjmp 1, while_start_{label}\nwhile_end_{label}:\n",
-                    label = ctx.label_index - 1
+                    label = ctx.while_label_index - 1
                 )
             }
             Stmt::ExitWhile => {
-                format!("\tjmp 1, while_end_{label}\n", label = ctx.label_index - 1)
+                format!(
+                    "\tjmp 1, while_end_{label}\n",
+                    label = ctx.while_label_index - 1
+                )
             }
             Stmt::Goto(line) => {
                 format!("\tjmp 1, line_{line}\n")
