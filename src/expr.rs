@@ -19,7 +19,7 @@ impl Expr {
                 // Number literal
                 if let Ok(number) = token.parse::<f64>() {
                     Expr::Value(number)
-                    // Number literal
+                // Boolean literal
                 } else if let Ok(number) = token.parse::<bool>() {
                     Expr::Value(if number { 1.0 } else { 0.0 })
                 // prioritize higher than others
