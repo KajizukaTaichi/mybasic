@@ -24,3 +24,14 @@ macro_rules! ok {
         if let Ok(x) = $x { Some(x) } else { None }
     };
 }
+
+#[macro_export]
+macro_rules! cond {
+    ($expr: expr) => {
+        if $expr.contains("\n") {
+            format!("{}\tmov cr, ar\n", $expr)
+        } else {
+            format!("\tmov cr, {}\n", $expr)
+        }
+    };
+}
