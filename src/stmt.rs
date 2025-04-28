@@ -65,7 +65,7 @@ impl Stmt {
             Stmt::If(expr) => {
                 let expr = expr.compile(ctx)?;
                 let result = format!(
-                    "{expr}\tjmp cr, if_then_{label}\n\tjmp 1, if_else_{label}\njmp 1, if_end_{label}\nif_then_{label}:\n",
+                    "{expr}\tjmp cr, if_then_{label}\n\tjmp 1, if_else_{label}\n\tjmp 1, if_end_{label}\nif_then_{label}:\n",
                     expr = cond!(expr),
                     label = ctx.label_index
                 );
