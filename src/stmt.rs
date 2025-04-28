@@ -38,7 +38,7 @@ impl Stmt {
             Some(Stmt::While(Expr::parse(name)?))
         } else if source == "end while" {
             Some(Stmt::EndWhile)
-        } else if source == "end sub" {
+        } else if source == "end sub" || source == "exit sub" {
             Some(Stmt::Return)
         } else if source == "else" {
             Some(Stmt::Else)
